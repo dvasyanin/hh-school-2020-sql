@@ -55,8 +55,8 @@ WITH calculate_query AS (
         hv.area_id,
         min(hr.created_at - hv.created_at) AS difference_time
     FROM hh.vacancy AS hv
-             INNER JOIN hh.response AS hr ON hv.id = hr.vacancy_id
-             INNER JOIN hh.employer AS he ON hv.employer_id = he.id
+    INNER JOIN hh.response AS hr ON hv.id = hr.vacancy_id
+    INNER JOIN hh.employer AS he ON hv.employer_id = he.id
     GROUP BY hv.id, hv.area_id
 )
 SELECT
