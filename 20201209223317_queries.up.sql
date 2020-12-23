@@ -65,5 +65,5 @@ SELECT
     min(cq.difference_time),
     max(cq.difference_time)
 FROM calculate_query AS cq
-         LEFT JOIN hh.area AS ha ON cq.area_id = ha.id
+LEFT JOIN hh.area AS ha ON cq.area_id = ha.id
 GROUP BY cq.area_id, ha.city;
