@@ -13,21 +13,25 @@ ORDER BY hv.created_at DESC
 LIMIT 10;
 ---------------------------------------------------------
 SELECT
-    AVG(compensation_to / (CASE WHEN compensation_gross
-                              THEN 0.87
-                              ELSE 1
-                        END)):: BIGINT AS avg_compensation_max,
-    AVG(compensation_from / (CASE WHEN compensation_gross
-                                  THEN 0.87
-                                  ELSE 1
-                          END)):: BIGINT AS avg_compensation_min,
-    AVG(compensation_to / (CASE WHEN compensation_gross
-                                THEN 0.87
-                                ELSE 1
-                        END):: BIGINT - compensation_from / (CASE WHEN compensation_gross
-                                                                  THEN 0.87
-                                                                  ELSE 1
-                                                            END):: BIGINT) AS avg_compensation_mid
+    AVG(CASE
+            WHEN compensation_gross
+            THEN compensation_to / 0.87
+            ELSE compensation_to
+        END) AS avg_compensation_max,
+    AVG(CASE
+            WHEN compensation_gross
+            THEN compensation_from / 0.87
+            ELSE compensation_from
+        END) AS avg_compensation_min,
+    AVG(CASE
+            WHEN compensation_gross
+            THEN compensation_to / 0.87
+            ELSE compensation_to
+        END - CASE
+                  WHEN compensation_gross
+                  THEN compensation_from / 0.87
+                  ELSE compensation_from
+              END) AS avg_compensation_mid
 FROM hh.vacancy;
 ---------------------------------------------------------
 SELECT
@@ -55,8 +59,8 @@ WITH calculate_query AS (
         hv.area_id,
         min(hr.created_at - hv.created_at) AS difference_time
     FROM hh.vacancy AS hv
-             INNER JOIN hh.response AS hr ON hv.id = hr.vacancy_id
-             INNER JOIN hh.employer AS he ON hv.employer_id = he.id
+    INNER JOIN hh.response AS hr ON hv.id = hr.vacancy_id
+    INNER JOIN hh.employer AS he ON hv.employer_id = he.id
     GROUP BY hv.id, hv.area_id
 )
 SELECT
@@ -65,5 +69,5 @@ SELECT
     min(cq.difference_time),
     max(cq.difference_time)
 FROM calculate_query AS cq
-         LEFT JOIN hh.area AS ha ON cq.area_id = ha.id
+LEFT JOIN hh.area AS ha ON cq.area_id = ha.id
 GROUP BY cq.area_id, ha.city;
